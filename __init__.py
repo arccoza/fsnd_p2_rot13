@@ -1,7 +1,6 @@
 import argparse
-from sanic import Sanic
-from sanic.response import json, html, text
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from flask import Flask, request, render_template
+# from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
 parser = argparse.ArgumentParser(description='Run a webapp.')
@@ -9,12 +8,12 @@ parser.add_argument('--port', type=int, help='The tcp/ip port to use.')
 args = parser.parse_args()
 print(args.port)
 
-views = Environment(
-  loader=FileSystemLoader('views'),
-  autoescape=select_autoescape(['html', 'xml'])
-)
+# views = Environment(
+#   loader=FileSystemLoader('views'),
+#   autoescape=select_autoescape(['html', 'xml'])
+# )
 
-app = Sanic()
+app = Flask(__name__, template_folder="views")
 
 
 def rot13(text):
@@ -29,13 +28,12 @@ def rot13(text):
         yield c
 
 @app.route("/", methods=['GET', 'POST'])
-async def test(req):
-  tmpl = views.get_template('index.html')
-  text = req.form.get('text', '')
+def test():
+  text = request.form.get('text', '')
   # print(text)
   text = ''.join(rot13(text))
 
-  return html(tmpl.render(text=text))
+  return render_template('index.html', text=text)
 
 if __name__ == "__main__":
   app.run(host="0.0.0.0", port=args.port or 8000)
