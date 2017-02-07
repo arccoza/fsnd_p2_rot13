@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700" rel="stylesheet">
+
+  <title>Blog</title>
+  <style type="text/css">
+    body {
+      font-family: 'Roboto', sans-serif;
+      font-weight: 300;
+    }
+
+    ul {
+      width: 100%;
+      display: flex;
+      flex-flow: column nowrap;
+      justify-content: center;
+      align-content: center;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    ul > li {
+      width: 980px;
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: flex-start;
+      /*align-items: stretch;*/
+      /*align-content: stretch;*/
+    }
+
+    input[type=text], textarea {
+      width: 100%;
+      padding: 0.5em;
+      border: 1px solid #ccc;
+      margin: 0.5em 0;
+      font-family: inherit;
+    }
+
+    textarea {
+      min-height: 320px;
+    }
+
+    button, input[type=submit] {
+      background: #0074D9;
+      color: #fff;
+      padding: 0.5em 1em;
+      border: 0;
+      border-radius: 1000px;
+    }
+
+    .error {
+      color: #FF4136;
+    }
+  </style>
+</head>
+<body>
+  <form method="post" action="/blog/newpost">
+    <ul>
+      <li>
+        <h1>New post</h1>
+      </li>
+      <li>
+        <input type="text" name="subject" value="{{subject}}" placeholder="Subject of the post">
+      </li>
+      <li>
+        <textarea name="content" value="{{content}}"></textarea>
+      </li>
+      {% if error %}
+      <li class="error">{{error}}</li>
+      {% endif %}
+      <li style="justify-content: flex-end;">
+        <input type="submit" name="" value="save">
+      </li>
+    </ul>
+  </form>
+</body>
+</html>
