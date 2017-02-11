@@ -2,6 +2,7 @@
 import re
 from flask import Flask, request, render_template, redirect, url_for, abort
 from google.appengine.ext import ndb
+from auth_bp import auth_pages
 
 
 # parser = argparse.ArgumentParser(description='Run a webapp.')
@@ -10,6 +11,7 @@ from google.appengine.ext import ndb
 # print(args.port)
 
 app = Flask(__name__, template_folder="views")
+app.debug = True
 
 
 def rot13(text):
@@ -159,6 +161,9 @@ def blog_newpost():
                              content=request.form.get('content'))
     return redirect(url_for('blog', post_id=post_key.id()))
   return render_template('blog-newpost.html')
+
+
+app.register_blueprint(auth_pages)
 
 
 if __name__ == "__main__":
