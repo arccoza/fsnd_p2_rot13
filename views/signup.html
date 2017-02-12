@@ -33,15 +33,15 @@
     <ul>
       <li>
         <label>Username:</label>
-        <input type="text" name="username" value="{{auth.username}}">
+        <input type="text" name="username" value="{{auth.username}}" class="{{ 'invalid' if auth and not auth.valid('username') else 'valid' }}">
       </li>
       <li>
         <label>Password:</label>
-        <input type="password" name="password">
+        <input type="password" name="password" class="{{ 'invalid' if auth and not auth.valid('password') else 'valid' }}">
       </li>
       <li>
         <label>Verify password:</label>
-        <input type="password" name="verify">
+        <input type="password" name="verify" class="{{ 'invalid' if pass_verified != None and not pass_verified else 'valid' }}">
       </li>
       <li>
         <label>Email:</label>

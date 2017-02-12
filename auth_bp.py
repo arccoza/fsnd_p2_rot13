@@ -2,8 +2,12 @@ from flask import Blueprint, request, render_template, redirect, url_for, abort
 from jinja2 import TemplateNotFound
 from google.appengine.ext import ndb
 import re
+from collections import namedtuple
+from passlib.hash import pbkdf2_sha256 as pw_hasher
 
 
+Conf = namedtuple('Conf', ['PASSWORD_SECRET'])
+conf = Conf('sssshhhhhhhhhhhh!')
 auth_pages = Blueprint('auth', __name__, template_folder='views')
 
 
@@ -27,7 +31,7 @@ def is_username(prop, v):
 
 
 def is_password(prop, v):
-  print('is_password: ', v, _re_is_password.match(v))
+  # print('is_password: ', v, _re_is_password.match(v))
   if v and _re_is_password.match(v):
     return v
   else:
@@ -42,64 +46,74 @@ def is_email(prop, v):
     raise TypeError(prop._name + ' must be a valid email.')
 
 
+class PasswordProperty(ndb.StringProperty):
+  def _validate(self, value):
+    if not isinstance(value, (str, unicode)):
+      raise TypeError('expected a string, got %s' % repr(value))
+    if not pw_hasher.identify(value):
+      return pw_hasher.hash(is_password(self, value))
+
+  def verify(cls, password, hash):
+    print(password, hash)
+    return pw_hasher.verify(password, hash)
+
+
 class User(ndb.Model):
   username = ndb.StringProperty(required=True, validator=is_username)
-  password = ndb.StringProperty(required=True, validator=is_password)
+  password = PasswordProperty(required=True)
   email = ndb.StringProperty(required=True, validator=is_email)
   created = ndb.DateTimeProperty(auto_now_add=True)
   updated = ndb.DateTimeProperty(auto_now=True)
 
   def valid(self, prop=None):
     isValid = False
-    # props = {prop: getattr(User, prop, None)} if prop else vars(User)
     props = {prop: self._properties.get(prop)} if prop else self._properties
-    # print(props)
     for k, v in props.iteritems():
       if isinstance(v, ndb.Property):
-        # print(k, v)
         try:
-          # v._validate(self._values.get(k))
-          # print(v)
-          # is_username(v, self._values.get(k))
           val = self._values.get(k)
-          if not (v._required and val):
+          # print(k)
+          if v._required and not val:
+            # print(k, val, v._required)
             return False
           setattr(self, k, val)
           print(k)
           isValid = True
         except Exception as ex:
+          # print(ex)
           return False
     return isValid
 
-  def populate(self, **kwargs):
+  def fill(self, **kwargs):
     print('populate:')
-    for k, v in kwargs.iteritems():
-      self._values[k] = v
+    # for k, v in kwargs.iteritems():
+    for k in self._properties:
+      v = kwargs.get(k)
+      if v:
+        self._values[k] = v
 
 
 @auth_pages.route('/signup/', methods=['GET', 'POST'])
 def signup():
-  # u = User()
-  # print('-----------')
-  # u._values['username'] = 's'
-  # # u.password = None
-  # print('-----------')
-  # # # print(isinstance(User.username, ndb.Property))
-  # print(u)
-  # print(u.valid('password'))
+  # u = User(username='test', password='1234', email='test@mail.com')
+  # u.put()
+  # print(u._values)
   user = None
+  pass_verified = None
   if request.method == 'POST':
     try:
       user = User()
-      user.populate(**request.form.to_dict())
-      print(user)
+      user.fill(**request.form.to_dict())
+      pass_verified = request.form.get('verify') == request.form.get('password')
+      print('---', user.valid('password'))
+      if user.valid() and pass_verified:
+        user.put()
+      print(user._values)
+      # print(user.valid())
     except Exception as ex:
       print('bad user')
-      # user = None
   try:
-    # print('\nuser:')
-    # print(user)
-    return render_template('signup.html', auth=user)
+    return render_template('signup.html', auth=user, pass_verified=pass_verified)
   except TemplateNotFound:
     abort(404)
 
