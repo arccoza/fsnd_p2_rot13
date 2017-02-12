@@ -11,6 +11,8 @@ def signup():
   # u = User(username='test', password='1234', email='test@mail.com')
   # u.put()
   # print(u._values)
+  # user_exists = User.query(User._properties['username'] == 'bobby').get()
+  # print(user_exists)
   user = None
   pass_verified = None
   if request.method == 'POST':
@@ -18,11 +20,9 @@ def signup():
       user = User()
       user.fill(**request.form.to_dict())
       pass_verified = request.form.get('verify') == request.form.get('password')
-      print('---', user.valid('password'))
       if user.valid() and pass_verified:
         user.put()
-      print(user._values)
-      # print(user.valid())
+        return redirect('/')
     except Exception as ex:
       print('bad user')
   try:
@@ -33,8 +33,10 @@ def signup():
 
 @auth_pages.route('/login/', methods=['GET', 'POST'])
 def login():
+  user = None
   if request.method == 'POST':
-    pass
+    user = User.gql('WHERE username = %s' % request.form.get('username'))
+    print(user)
   try:
     return render_template('login.html', auth=None)
   except TemplateNotFound:

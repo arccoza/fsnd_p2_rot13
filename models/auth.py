@@ -22,6 +22,15 @@ _re_is_email = re.compile('^[\S]+@[\S]+.[\S]+$')
 
 def is_username(prop, v):
   if v and _re_is_username.match(v):
+    try:
+      # Can't use the User.username prop in the query directly,
+      # including the `prop` arg, it causes infite recursion.
+      user_exists = User.query(ndb.StringProperty(prop._name) == v).get()
+    except Exception as ex:
+      print(ex)
+      raise ex
+    if user_exists:
+      raise TypeError(prop._name + ' must be unique.')
     return v
   else:
     raise TypeError(prop._name + ' must be a valid username.')
@@ -51,7 +60,7 @@ class PasswordProperty(ndb.StringProperty):
       return pw_hasher.hash(is_password(self, value))
 
   def verify(cls, password, hash):
-    print(password, hash)
+    # print(password, hash)
     return pw_hasher.verify(password, hash)
 
 
@@ -74,7 +83,7 @@ class User(ndb.Model):
             # print(k, val, v._required)
             return False
           setattr(self, k, val)
-          print(k)
+          # print(k)
           isValid = True
         except Exception as ex:
           # print(ex)
@@ -82,7 +91,7 @@ class User(ndb.Model):
     return isValid
 
   def fill(self, **kwargs):
-    print('populate:')
+    # print('populate:')
     # for k, v in kwargs.iteritems():
     for k in self._properties:
       v = kwargs.get(k)
