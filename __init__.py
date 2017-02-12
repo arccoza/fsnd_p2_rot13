@@ -2,7 +2,7 @@
 import re
 from flask import Flask, request, render_template, redirect, url_for, abort
 from google.appengine.ext import ndb
-from auth_bp import auth_pages
+from routes.auth import auth_pages
 
 
 # parser = argparse.ArgumentParser(description='Run a webapp.')

@@ -1,5 +1,3 @@
-from flask import Blueprint, request, render_template, redirect, url_for, abort
-from jinja2 import TemplateNotFound
 from google.appengine.ext import ndb
 import re
 from collections import namedtuple
@@ -8,10 +6,9 @@ from passlib.hash import pbkdf2_sha256 as pw_hasher
 
 Conf = namedtuple('Conf', ['PASSWORD_SECRET'])
 conf = Conf('sssshhhhhhhhhhhh!')
-auth_pages = Blueprint('auth', __name__, template_folder='views')
 
 
-def not_empty(prop, v):
+def is_not_empty(prop, v):
   if v:
     return v
   else:
@@ -91,38 +88,3 @@ class User(ndb.Model):
       v = kwargs.get(k)
       if v:
         self._values[k] = v
-
-
-@auth_pages.route('/signup/', methods=['GET', 'POST'])
-def signup():
-  # u = User(username='test', password='1234', email='test@mail.com')
-  # u.put()
-  # print(u._values)
-  user = None
-  pass_verified = None
-  if request.method == 'POST':
-    try:
-      user = User()
-      user.fill(**request.form.to_dict())
-      pass_verified = request.form.get('verify') == request.form.get('password')
-      print('---', user.valid('password'))
-      if user.valid() and pass_verified:
-        user.put()
-      print(user._values)
-      # print(user.valid())
-    except Exception as ex:
-      print('bad user')
-  try:
-    return render_template('signup.html', auth=user, pass_verified=pass_verified)
-  except TemplateNotFound:
-    abort(404)
-
-
-@auth_pages.route('/login/', methods=['GET', 'POST'])
-def login():
-  if request.method == 'POST':
-    pass
-  try:
-    return render_template('login.html', auth=None)
-  except TemplateNotFound:
-    abort(404)
