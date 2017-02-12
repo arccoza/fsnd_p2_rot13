@@ -33,7 +33,7 @@
     <ul>
       <li>
         <label>Username:</label>
-        <input type="text" name="username" value="{{auth.username}}" class="{{ 'invalid' if auth and not auth.valid('username') else 'valid' }}">
+        <input type="text" name="username" value="{{auth.username}}" class="{{ 'invalid' if auth and not (auth.valid('username') and auth.unique) else 'valid' }}">
       </li>
       <li>
         <label>Password:</label>

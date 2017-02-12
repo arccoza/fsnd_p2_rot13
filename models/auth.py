@@ -22,15 +22,6 @@ _re_is_email = re.compile('^[\S]+@[\S]+.[\S]+$')
 
 def is_username(prop, v):
   if v and _re_is_username.match(v):
-    try:
-      # Can't use the User.username prop in the query directly,
-      # including the `prop` arg, it causes infite recursion.
-      user_exists = User.query(ndb.StringProperty(prop._name) == v).get()
-    except Exception as ex:
-      print(ex)
-      raise ex
-    if user_exists:
-      raise TypeError(prop._name + ' must be unique.')
     return v
   else:
     raise TypeError(prop._name + ' must be a valid username.')
@@ -89,6 +80,17 @@ class User(ndb.Model):
           # print(ex)
           return False
     return isValid
+
+  @property
+  def unique(self):
+    print('unique')
+    try:
+      val = False if User.query(User.username == self.username).get() else True
+      print(val)
+      return val
+    except Exception as ex:
+      print(ex)
+      raise ex
 
   def fill(self, **kwargs):
     # print('populate:')

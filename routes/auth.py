@@ -20,7 +20,7 @@ def signup():
       user = User()
       user.fill(**request.form.to_dict())
       pass_verified = request.form.get('verify') == request.form.get('password')
-      if user.valid() and pass_verified:
+      if user.valid() and user.unique and pass_verified:
         user.put()
         return redirect('/')
     except Exception as ex:
@@ -35,7 +35,7 @@ def signup():
 def login():
   user = None
   if request.method == 'POST':
-    user = User.gql('WHERE username = %s' % request.form.get('username'))
+    user = User.query(User.username == request.form.get('username')).get()
     print(user)
   try:
     return render_template('login.html', auth=None)
