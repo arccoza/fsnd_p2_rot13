@@ -62,6 +62,23 @@ class User(ndb.Model):
   created = ndb.DateTimeProperty(auto_now_add=True)
   updated = ndb.DateTimeProperty(auto_now=True)
 
+  @property
+  def unique(self):
+    try:
+      val = getattr(self, '_unique', None)
+      if val is None:
+        self._unique = False if User.query(User.username == self.username).get() else True
+        val = self._unique
+      return val
+    except Exception as ex:
+      print(ex)
+      raise ex
+
+  @unique.setter
+  def unique(self, v):
+    if v is None:
+      self._unique = v
+
   def valid(self, prop=None):
     isValid = False
     props = {prop: self._properties.get(prop)} if prop else self._properties
@@ -80,17 +97,6 @@ class User(ndb.Model):
           # print(ex)
           return False
     return isValid
-
-  @property
-  def unique(self):
-    print('unique')
-    try:
-      val = False if User.query(User.username == self.username).get() else True
-      print(val)
-      return val
-    except Exception as ex:
-      print(ex)
-      raise ex
 
   def fill(self, **kwargs):
     # print('populate:')
