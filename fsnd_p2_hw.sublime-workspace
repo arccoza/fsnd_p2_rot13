@@ -4,6 +4,38 @@
 		"selected_items":
 		[
 			[
+				"usr",
+				"username='test"
+			],
+			[
+				"to",
+				"to_token"
+			],
+			[
+				"from",
+				"from_token"
+			],
+			[
+				"sessi",
+				"session_name"
+			],
+			[
+				"uni",
+				"unique"
+			],
+			[
+				"user",
+				"user_exists"
+			],
+			[
+				"Pas",
+				"PasswordProperty"
+			],
+			[
+				"pw",
+				"pw_hasher"
+			],
+			[
 				"pas",
 				"password"
 			],
@@ -342,7 +374,7 @@
 			"file": "views/signup.html",
 			"settings":
 			{
-				"buffer_size": 1622,
+				"buffer_size": 1640,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -360,19 +392,27 @@
 			"file": "__init__.py",
 			"settings":
 			{
-				"buffer_size": 4569,
+				"buffer_size": 4573,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "auth_bp.py",
+			"file": "routes/auth.py",
 			"settings":
 			{
-				"buffer_size": 3048,
+				"buffer_size": 4535,
 				"encoding": "UTF-8",
-				"line_ending": "Unix",
-				"name": "from flask import Blueprint, render_template, abor"
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "models/auth.py",
+			"settings":
+			{
+				"buffer_size": 2826,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
 			}
 		}
 	],
@@ -470,17 +510,23 @@
 	"expanded_folders":
 	[
 		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p2_rot13",
+		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p2_rot13/models",
+		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p2_rot13/routes",
 		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p2_rot13/views"
 	],
 	"file_history":
 	[
+		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p2_rot13/app.yaml",
+		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p2_rot13/models/auth.py",
+		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p2_rot13/auth_bp.py",
+		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p2_rot13/routes/__init__.py",
+		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p2_rot13/models/__init__.py",
 		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p2_rot13/fsnd_p2_hw.sublime-project",
 		"/home/adrien/.config/sublime-text-3/Packages/SublimeLinter/SublimeLinter.sublime-settings",
 		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p2_rot13/views/rot13.html",
 		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p2_rot13/views/auth.html",
 		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p2_rot13/requirements.txt",
 		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p2_rot13/views/welcome.html",
-		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p2_rot13/app.yaml",
 		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p1_portfolio/pub/projects/fsnd_p0_movie_trailer_website.html",
 		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p1_portfolio/pub/index.html",
 		"/home/adrien/Projects/education/udacity_fsnd/fsnd_p1_portfolio/pub/projects/fsnd_p1_portfolio.html",
@@ -759,7 +805,7 @@
 						"translation.y": 690.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 7,
 					"type": "text"
 				},
 				{
@@ -789,7 +835,7 @@
 						"translation.y": 276.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
@@ -819,7 +865,7 @@
 						"translation.y": 598.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
@@ -828,15 +874,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1622,
+						"buffer_size": 1640,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1214,
-								1214
+								883,
+								883
 							]
 						],
 						"settings":
@@ -846,10 +892,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 460.0,
+						"translation.y": 483.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
@@ -879,7 +925,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
@@ -888,15 +934,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4569,
+						"buffer_size": 4573,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								61,
-								61
+								3752,
+								3752
 							]
 						],
 						"settings":
@@ -906,39 +952,70 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 2719.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
 					"buffer": 6,
-					"file": "auth_bp.py",
+					"file": "routes/auth.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3048,
+						"buffer_size": 4535,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								242,
-								242
+								1710,
+								1710
 							]
 						],
 						"settings":
 						{
-							"auto_name": "from flask import Blueprint, render_template, abor",
-							"syntax": "Packages/Python/Python.sublime-syntax"
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 897.0,
+						"translation.y": 1175.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "models/auth.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2826,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1135,
+								1135
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 649.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
 					"type": "text"
 				}
 			]
