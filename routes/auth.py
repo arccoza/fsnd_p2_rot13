@@ -1,4 +1,4 @@
-from flask import Blueprint, request, make_response, render_template, redirect, url_for, abort
+from flask import Flask, Blueprint, current_app, request, make_response, render_template, redirect, url_for, abort
 from jinja2 import TemplateNotFound
 from models.auth import User
 from collections import namedtuple
@@ -21,10 +21,10 @@ def get_session(token):
 
 
 class Token(dict):
-  def __init__(self, *args, **kwargs):
-    super(Token, self).__init__(*args, **kwargs)
-    self.secret = None
-    self.algorithm = 'HS256'
+  def __init__(self, secret, algorithm='HS256'):
+    super(Token, self).__init__()
+    self.secret = secret
+    self.algorithm = algorithm
     self._value = None
 
   def __setitem__(self, k, v):
@@ -48,7 +48,6 @@ class Token(dict):
 
   def encode(self):
     if not self._value:
-      print('----------------', self.secret)
       self._value = jwt.encode(self, self.secret, algorithm=self.algorithm)
     return self._value
 
@@ -66,13 +65,48 @@ class Token(dict):
 
 
 class Session(object):
-  def __init__(self):
-    self._token = Token()
+  def __init__(self, app, req, id='session', auto=True):
+    self.app = app
+    self.req = req
+    self._ck = None
+    self.id = id
+    if auto:
+      self.app.after_request(self._set)
+
+  def get(self):
+    return self.req.cookies.get(self.id)
+
+  def set(self, token):
+    self._ck = {'key': self.id, 'value': token, 'path': '/'}
+
+  def _set(self, res):
+    if self._ck:
+      res.set_cookie(**self._ck)
+    return res
+
+  def rem(self):
+    self._ck = {'key': self.id, 'value': '', 'expires': 0, 'path': '/'}
 
 
 class Security(object):
-  def __init__(self):
-    self._token = Token()
+  def init(self, app, req, secret):
+    self._app = app
+    self._req = req
+    self._token = Token(secret)
+    self._session = Session(app, req, auto=False)
+    app.before_request(self._before)
+    app.after_request(self._after)
+
+  def _before(self):
+    print('before')
+    if self.session:
+      self.token = self.session
+
+  def _after(self, res):
+    print('after')
+    self.session = self.token.encode()
+    self._session._set(res)
+    return res
 
   @property
   def token(self):
@@ -85,6 +119,39 @@ class Security(object):
     except:
       self._token.reset(v)
 
+  @property
+  def session(self):
+    return self._session.get()
+
+  @session.setter
+  def session(self, v):
+    if v:
+      self._session.set(v)
+    else:
+      self._session.rem()
+
+  def allow(self, cmp, alt=None):
+    def allow_deco(fn):
+      def allow_handler(*args, **kwargs):
+        print(repr(self._token))
+        if cmp(self.token):
+          return fn(*args, **kwargs)
+        elif alt:
+          return alt(*args, **kwargs)
+        else:
+          return abort(403)
+      return allow_handler
+    return allow_deco
+
+sec = Security()
+@auth_pages.record
+def prep(setup_state):
+  print('record')
+  sec.init(setup_state.app, request, 'shh')
+
+  @setup_state.app.before_request
+  def hip():
+    sec.token['username'] = 'bob'
 
 # class Session(dict):
 #   def __init__(self, *args, **kwargs):
@@ -117,6 +184,7 @@ class Security(object):
 
 
 @auth_pages.route('/signup/', methods=['GET', 'POST'])
+# @sec.allow(lambda t: t.get('username') == 'bob', lambda: redirect('/'))
 def signup():
   # u = User(username='test', password='1234', email='test@mail.com')
   # u.put()
@@ -154,7 +222,6 @@ def login():
   # a.token.secret = 'shh'
   # a.token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QifQ.PbEgFHkDCyWeaxIWTV3Qoo9KREbsUGe2oFbDzyISD1A'
   # print(a.token)
-  print(auth_pages)
   user = None
   if request.method == 'POST':
     user = User.query(User.username == request.form.get('username')).get()
