@@ -18,7 +18,7 @@ def prep(setup_state):
   #   sec.token['username'] = 'bob'
 
 
-@auth_pages.route('/signup/', methods=['GET', 'POST'])
+@auth_pages.route('/signup', methods=['GET', 'POST'])
 @sec.allow(lambda t: not t.get('username'), lambda: redirect(url_for('auth.welcome')))
 def signup():
   # u = User(username='test', password='1234', email='test@mail.com')
@@ -46,7 +46,7 @@ def signup():
     abort(404)
 
 
-@auth_pages.route('/login/', methods=['GET', 'POST'])
+@auth_pages.route('/login', methods=['GET', 'POST'])
 @sec.allow(lambda t: not t.get('username'), lambda: redirect(url_for('auth.welcome')))
 def login():
   # tok = Token(username='bob')
@@ -79,13 +79,13 @@ def login():
     abort(404)
 
 
-@auth_pages.route('/logout/')
+@auth_pages.route('/logout')
 @sec.allow(lambda t: t.get('username'), lambda: redirect(url_for('auth.login')))
 def logout():
   sec.token = {}
   return redirect(url_for('auth.login'))
 
 
-@auth_pages.route('/welcome/')
+@auth_pages.route('/welcome')
 def welcome():
   return render_template('welcome.html', username=sec.token.get('username'))
