@@ -109,9 +109,9 @@ def auth():
   return render_template('auth.html', auth={'error': None})
 
 
-@app.route("/welcome", methods=['GET'])
-def welcome():
-  return render_template('welcome.html', username=request.args.get('u'))
+# @app.route("/welcome", methods=['GET'])
+# def welcome():
+#   return render_template('welcome.html', username=request.args.get('u'))
 
 
 def not_empty(s, v):

@@ -19,7 +19,7 @@ def prep(setup_state):
 
 
 @auth_pages.route('/signup/', methods=['GET', 'POST'])
-# @sec.allow(lambda t: t.get('username') == 'bob', lambda: redirect('/'))
+@sec.allow(lambda t: not t.get('username'), lambda: redirect(url_for('auth.welcome')))
 def signup():
   # u = User(username='test', password='1234', email='test@mail.com')
   # u.put()
@@ -35,9 +35,11 @@ def signup():
       pass_verified = request.form.get('verify') == request.form.get('password')
       if user.valid() and user.unique and pass_verified:
         user.put()
-        return redirect('/')
+        sec.token = {'username': user.username}
+        return redirect(url_for('auth.welcome'))
     except Exception as ex:
       print('bad user')
+      print(ex)
   try:
     return render_template('signup.html', auth=user, pass_verified=pass_verified)
   except TemplateNotFound:
@@ -45,6 +47,7 @@ def signup():
 
 
 @auth_pages.route('/login/', methods=['GET', 'POST'])
+@sec.allow(lambda t: not t.get('username'), lambda: redirect(url_for('auth.welcome')))
 def login():
   # tok = Token(username='bob')
   # tok.secret = 'shh'
@@ -58,11 +61,31 @@ def login():
   # a.token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QifQ.PbEgFHkDCyWeaxIWTV3Qoo9KREbsUGe2oFbDzyISD1A'
   # print(a.token)
   user = None
+  pass_verified = False
   if request.method == 'POST':
     user = User.query(User.username == request.form.get('username')).get()
-    if user and User.password.verify(request.form.get('password'), user.password):
+    if not user:
+      user = User()
+      user.fill(username=request.form.get('username'))
+    if (user and user.password and
+      User.password.verify(request.form.get('password'), user.password)):
       sec.token = {'username': user.username}
+      pass_verified = True
+      return redirect(url_for('auth.welcome'))
   try:
-    return render_template('login.html', auth=None)
+    return render_template('login.html',
+                            auth=user, pass_verified=pass_verified)
   except TemplateNotFound:
     abort(404)
+
+
+@auth_pages.route('/logout/')
+@sec.allow(lambda t: t.get('username'), lambda: redirect(url_for('auth.login')))
+def logout():
+  sec.token = {}
+  return redirect(url_for('auth.login'))
+
+
+@auth_pages.route('/welcome/')
+def welcome():
+  return render_template('welcome.html', username=sec.token.get('username'))

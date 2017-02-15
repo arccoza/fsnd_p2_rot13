@@ -39,6 +39,9 @@
         <label>Password:</label>
         <input type="password" name="password">
       </li>
+      {% if auth and not pass_verified %}
+      <li class="invalid">Error: try again.</li>
+      {% endif %}
       <li>
         <input type="submit" name="">
       </li>

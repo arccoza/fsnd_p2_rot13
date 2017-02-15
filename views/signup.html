@@ -47,7 +47,7 @@
         <label>Email:</label>
         <input type="text" name="email" value="{{auth.email}}" class="{{ 'invalid' if auth and not auth.valid('email') else 'valid' }}">
       </li>
-      {% if auth and not auth.valid() %}
+      {% if auth and not (auth.valid('username') and auth.unique) %}
       <li class="invalid">Error: try again.</li>
       {% endif %}
       <li>

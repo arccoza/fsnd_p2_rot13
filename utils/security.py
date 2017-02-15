@@ -1,4 +1,5 @@
 from jose import jwt
+from functools import wraps
 
 
 class Token(dict):
@@ -20,15 +21,20 @@ class Token(dict):
     super(Token, self).update(it)
     self._value = None
 
+  def clear(self):
+    super(Token, self).clear()
+    self._value = None
+
   # TODO: Make this safer.
   def reset(self, val):
     val.__iter__
-    self.clear()
+    super(Token, self).clear()
     self.update(val)
     # self._value = None
 
-  def encode(self):
-    if not self._value:
+  def encode(self, empty=None):
+    # Be cautious here, this only works because `_value` is cleared on updates.
+    if not self._value and len(self):
       self._value = jwt.encode(self, self.secret, algorithm=self.algorithm)
     return self._value
 
@@ -79,12 +85,12 @@ class Security(object):
     app.after_request(self._after)
 
   def _before(self):
-    print('before')
+    # print('before')
     if self.session:
       self.token = self.session
 
   def _after(self, res):
-    print('after')
+    # print('after')
     self.session = self.token.encode()
     self._session._set(res)
     return res
@@ -116,6 +122,7 @@ class Security(object):
 
   def allow(self, cmp, alt=None):
     def allow_deco(fn):
+      @wraps(fn)
       def allow_handler(*args, **kwargs):
         print(repr(self._token))
         if cmp(self.token):
