@@ -1,17 +1,21 @@
-from flask import Flask, Blueprint, current_app, request, make_response, render_template, redirect, url_for, abort
+from flask import Flask, g, Blueprint, current_app, request, make_response, render_template, redirect, url_for, abort
 from jinja2 import TemplateNotFound
 from models.auth import User
-from utils.security import Security
+from utils.security import Security, Security2
 
 
 auth_pages = Blueprint('auth', __name__, template_folder='views')
+
+
+# sec = SecurityProxy(auth_pages, 'shh')
+s2 = Security2(auth_pages, 'shh')
 
 
 sec = Security()
 @auth_pages.record
 def prep(setup_state):
   print('record')
-  sec.init(setup_state.app, request, 'shh')
+  sec.init(setup_state.app, 'shh')
 
   # @setup_state.app.before_request
   # def hip():
@@ -19,7 +23,7 @@ def prep(setup_state):
 
 
 @auth_pages.route('/signup', methods=['GET', 'POST'])
-@sec.allow(lambda t: not t.get('username'), lambda: redirect(url_for('auth.welcome')))
+# @sec.allow(lambda t: not t.get('username'), lambda: redirect(url_for('auth.welcome')))
 def signup():
   # u = User(username='test', password='1234', email='test@mail.com')
   # u.put()
@@ -47,7 +51,7 @@ def signup():
 
 
 @auth_pages.route('/login', methods=['GET', 'POST'])
-@sec.allow(lambda t: not t.get('username'), lambda: redirect(url_for('auth.welcome')))
+# @sec.allow(lambda t: not t.get('username'), lambda: redirect(url_for('auth.welcome')))
 def login():
   # tok = Token(username='bob')
   # tok.secret = 'shh'
@@ -80,7 +84,7 @@ def login():
 
 
 @auth_pages.route('/logout')
-@sec.allow(lambda t: t.get('username'), lambda: redirect(url_for('auth.login')))
+# @sec.allow(lambda t: t.get('username'), lambda: redirect(url_for('auth.login')))
 def logout():
   sec.token = {}
   return redirect(url_for('auth.login'))
@@ -88,4 +92,5 @@ def logout():
 
 @auth_pages.route('/welcome')
 def welcome():
+  print(s2.token._value)
   return render_template('welcome.html', username=sec.token.get('username'))
