@@ -5,31 +5,23 @@ from utils.security import Security
 
 
 auth_pages = Blueprint('auth', __name__, template_folder='views')
-
-
-# sec = SecurityProxy(auth_pages, 'shh')
 sec = Security(auth_pages, 'shh')
 
 
-# sec = Security()
-@auth_pages.record
-def prep(setup_state):
-  print('record')
-  # sec.init(setup_state.app, 'shh')
+# # sec = Security()
+# @auth_pages.record
+# def prep(setup_state):
+#   print('record')
+#   # sec.init(setup_state.app, 'shh')
 
-  # @setup_state.app.before_request
-  # def hip():
-  #   sec.token['username'] = 'bob'
+#   # @setup_state.app.before_request
+#   # def hip():
+#   #   sec.token['username'] = 'bob'
 
 
 @auth_pages.route('/signup', methods=['GET', 'POST'])
 @sec.allow(lambda t: not t.get('username'), lambda: redirect(url_for('auth.welcome')))
 def signup():
-  # u = User(username='test', password='1234', email='test@mail.com')
-  # u.put()
-  # print(u._values)
-  # user_exists = User.query(User._properties['username'] == 'bobby').get()
-  # print(user_exists)
   user = None
   pass_verified = None
   if request.method == 'POST':
@@ -53,17 +45,6 @@ def signup():
 @auth_pages.route('/login', methods=['GET', 'POST'])
 @sec.allow(lambda t: not t.get('username'), lambda: redirect(url_for('auth.welcome')))
 def login():
-  # tok = Token(username='bob')
-  # tok.secret = 'shh'
-  # tok.encode()
-  # tok.update({'username': 'sam'})
-  # tok._value = None
-  # tok.decode('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QifQ.PbEgFHkDCyWeaxIWTV3Qoo9KREbsUGe2oFbDzyISD1A')
-  # print(tok['username'])
-  # a = Security()
-  # a.token.secret = 'shh'
-  # a.token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QifQ.PbEgFHkDCyWeaxIWTV3Qoo9KREbsUGe2oFbDzyISD1A'
-  # print(a.token)
   user = None
   pass_verified = False
   if request.method == 'POST':
@@ -91,6 +72,6 @@ def logout():
 
 
 @auth_pages.route('/welcome')
+@sec.allow(lambda t: t.get('username'), lambda: redirect(url_for('auth.login')))
 def welcome():
-  # print('***********', s2.token.encode())
   return render_template('welcome.html', username=sec.token.get('username'))
