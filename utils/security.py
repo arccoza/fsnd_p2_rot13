@@ -75,24 +75,87 @@ class Session(object):
     self._ck = {'key': self.id, 'value': '', 'expires': 0, 'path': '/'}
 
 
+# class Security(object):
+#   def init(self, app, secret):
+#     self._app = app
+#     self._req = request
+#     self._token = Token(secret)
+#     self._session = Session()
+#     app.before_request(self._before)
+#     app.after_request(self._after)
+
+#   def _before(self):
+#     # print('self._app')
+#     if self.session:
+#       self.token = self.session
+
+#   def _after(self, res):
+#     self.session = self.token.encode()
+#     self._session._set(res)
+#     return res
+
+#   @property
+#   def token(self):
+#     return self._token
+
+#   @token.setter
+#   def token(self, v):
+#     try:
+#       self._token.decode(v)
+#     except:
+#       try:
+#         self._token.reset(v)
+#       except:
+#         self._token.reset({})
+
+#   @property
+#   def session(self):
+#     return self._session.get()
+
+#   @session.setter
+#   def session(self, v):
+#     if v:
+#       self._session.set(v)
+#     else:
+#       self._session.rem()
+
+#   def allow(self, cmp, alt=None):
+#     def allow_deco(fn):
+#       @wraps(fn)
+#       def allow_handler(*args, **kwargs):
+#         if cmp(self.token):
+#           return fn(*args, **kwargs)
+#         elif alt:
+#           return alt(*args, **kwargs)
+#         else:
+#           return abort(403)
+#       return allow_handler
+#     return allow_deco
+
+
 class Security(object):
-  def init(self, app, secret):
-    self._app = app
-    self._req = request
-    self._token = Token(secret)
-    self._session = Session()
-    app.before_request(self._before)
-    app.after_request(self._after)
+  def __init__(self, app, secret):
+    def _before():
+      g._security = g.get('_security') or {'_token': Token(secret), '_session': Session()}
+      if self.session:
+        self.token = self.session
 
-  def _before(self):
-    # print('self._app')
-    if self.session:
-      self.token = self.session
+    def _after(res):
+      self.session = self.token.encode()
+      self._session._set(res)
+      return res
 
-  def _after(self, res):
-    self.session = self.token.encode()
-    self._session._set(res)
-    return res
+    app.before_request(_before)
+    app.after_request(_after)
+
+  def __getattr__(self, k):
+    return g._security[k]
+
+  def __setattr__(self, k, v):
+    try:
+      self.__class__.__dict__[k].__set__(self, v)
+    except Exception as e:
+      g._security[k] = v
 
   @property
   def token(self):
@@ -123,7 +186,6 @@ class Security(object):
     def allow_deco(fn):
       @wraps(fn)
       def allow_handler(*args, **kwargs):
-        print(repr(self._token))
         if cmp(self.token):
           return fn(*args, **kwargs)
         elif alt:
@@ -132,73 +194,6 @@ class Security(object):
           return abort(403)
       return allow_handler
     return allow_deco
-
-
-class Security2(object):
-  def __init__(self, app, secret):
-    def _before():
-      print('before')
-      g._security = g.get('_security') or {'_token': Token(secret), '_session': Session()}
-      if self.session:
-        self.token = self.session
-
-    def _after(res):
-      print('after')
-      self.session = self.token.encode()
-      self._session._set(res)
-      return res
-
-    app.before_request(_before)
-    app.after_request(_after)
-
-  def __getattr__(self, k):
-    return g._security[k]
-
-  def __setattr__(self, k, v):
-    if k not in ('token', 'session'):
-      g._security[k] = v
-    else:
-      self.__dict__[k] = v
-
-  @property
-  def token(self):
-    return self._token
-
-  @token.setter
-  def token(self, v):
-    print(v)
-    try:
-      self._token.decode(v)
-    except:
-      try:
-        self._token.reset(v)
-      except:
-        self._token.reset({})
-
-  @property
-  def session(self):
-    return self._session.get()
-
-  @session.setter
-  def session(self, v):
-    if v:
-      self._session.set(v)
-    else:
-      self._session.rem()
-
-  # def allow(self, cmp, alt=None):
-  #   def allow_deco(fn):
-  #     @wraps(fn)
-  #     def allow_handler(*args, **kwargs):
-  #       print(repr(self._token))
-  #       if cmp(self.token):
-  #         return fn(*args, **kwargs)
-  #       elif alt:
-  #         return alt(*args, **kwargs)
-  #       else:
-  #         return abort(403)
-  #     return allow_handler
-  #   return allow_deco
 
 
 # class SecurityProxy(object):
